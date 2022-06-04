@@ -1,0 +1,114 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id "kotlin-parcelize"
+    id "dagger.hilt.android.plugin"
+    id "androidx.navigation.safeargs.kotlin"
+}
+
+static def releaseTime() {
+    return new Date().format("yyyyMMdd-HHmmss", TimeZone.getTimeZone("GMT+8"))
+}
+
+android {
+    compileSdk cfgs.compileSdkVersion
+
+    defaultConfig {
+        applicationId "com.suromo.asset"
+        minSdk cfgs.minSdkVersion
+        targetSdk cfgs.targetSdkVersion
+        versionCode cfgs.versionCode
+        versionName cfgs.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        multiDexEnabled true
+        vectorDrawables {
+            useSupportLibrary true
+        }
+
+        ndk {
+            abiFilters "armeabi", "armeabi-v7a", "x86"
+        }
+    }
+
+    signingConfigs {
+        releaseConfig {
+            storeFile file(sign.file)
+            storePassword sign.storePassword
+            keyAlias sign.keyAlias
+            keyPassword sign.keyPassword
+        }
+    }
+    
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true // 去除无用资源 与lint不同
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            android.applicationVariants.all { variant ->
+                variant.outputs.all {
+                    outputFileName = "AssetManager_${defaultConfig.versionName}_${releaseTime()}.apk"
+                }
+            }
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion des.compose_version
+    }
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+}
+
+dependencies {
+
+    implementation "androidx.core:core-ktx:$des.ktx_core_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$des.ktx_runtime_version"
+
+    implementation "androidx.compose.ui:ui:$des.compose_version"
+    implementation "androidx.compose.material:material:$des.compose_version"
+    implementation "androidx.compose.ui:ui-tooling-preview:$des.compose_version"
+    implementation "androidx.navigation:navigation-compose:$des.compose_nav_version"
+    implementation "androidx.activity:activity-compose:$des.compose_activity_version"
+
+    //Hilt
+    implementation "com.google.dagger:hilt-android:$des.hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$des.hilt_version"
+    implementation "androidx.hilt:hilt-navigation-compose:$des.hilt_nav_version"
+    implementation "androidx.hilt:hilt-lifecycle-viewmodel:$des.hilt_viewmodel_version"
+    kapt "androidx.hilt:hilt-compiler:$des.hilt_compiler_version"
+    //系统ui控制器
+    implementation "com.google.accompanist:accompanist-systemuicontroller:$des.accompanist_version"
+    implementation "com.google.accompanist:accompanist-insets:$des.accompanist_version"
+    //placeholder
+    implementation "com.google.accompanist:accompanist-placeholder-material:$des.accompanist_version"
+    // logger
+    implementation "com.orhanobut:logger:$des.log_version"
+    //gson
+    implementation "com.google.code.gson:gson:$des.gson_version"
+
+    testImplementation "junit:junit:$des.junit_version"
+
+    androidTestImplementation "androidx.test.ext:junit:$des.junit_ext_version"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$des.espresso_version"
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$des.compose_version"
+
+    debugImplementation "androidx.compose.ui:ui-tooling:$des.compose_version"
+    debugImplementation "androidx.compose.ui:ui-test-manifest:$des.compose_version"
+}

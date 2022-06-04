@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">资产管家</string>
+    <string name="home">明细</string>
+    <string name="asset">资产</string>
+    <string name="keep">记账</string>
+    <string name="bill">账单</string>
+    <string name="mine">我的</string>
+</resources>
